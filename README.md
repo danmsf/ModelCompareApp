@@ -18,7 +18,7 @@ The dependant variable is `keshel_Future` - this will be generalized in the futu
 * broom
 * dplyr
 * Shiny
-* 
+  
 ## Todos
 * Generalize dependant variable with a widget
 * Add labels to curves in graphs
