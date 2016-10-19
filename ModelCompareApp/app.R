@@ -111,11 +111,20 @@ server <- shinyServer(function(input, output,session) {
 })
 
   output$GiniAuc <- renderTable({
+    auc2 <- function(actual, predicted){
+    r <- rank(predicted)
+    n_pos <- sum(actual==1)
+    n_neg <- length(actual) - n_pos
+    auc <- (sum(r[actual==1]) - n_pos*(n_pos+1)/2) / (n_pos*n_neg)
+    gini <- auc*2-1
+      auc
+     }
     work1 <- work1()
-
+    
     gini1 <- work1 %>%
               group_by(sample) %>%
-              summarise(sum_p=sum(diff_predict),sum_a=sum(diff_best), gini=sum_p/sum_a, auc=0.5*gini+0.5) %>%
+              ## summarise(sum_p=sum(diff_predict),sum_a=sum(diff_best), gini=sum_p/sum_a, auc=0.5*gini+0.5) %>%
+              summarise(auc=auc2(actual, predicted), gini=auc*2-1) %>%
               mutate(regression="Regression1", Sample = ifelse(sample==0,"In Sample","Out of Sample")) %>%
               select(regression,Sample,gini,auc)
 
@@ -123,7 +132,8 @@ server <- shinyServer(function(input, output,session) {
       work2 <- work2()
       gini2 <- work2 %>%
         group_by(sample) %>%
-        summarise(sum_p=sum(diff_predict),sum_a=sum(diff_best), gini=sum_p/sum_a, auc=0.5*gini+0.5) %>%
+        ## summarise(sum_p=sum(diff_predict),sum_a=sum(diff_best), gini=sum_p/sum_a, auc=0.5*gini+0.5) %>%
+        summarise(auc=auc2(actual, predicted), gini=auc*2-1) %>%
         mutate(regression="Regression2", Sample = ifelse(sample==0,"In Sample","Out of Sample")) %>%
         select(regression,Sample,gini,auc)
       gini1 <- rbind(gini1,gini2)
